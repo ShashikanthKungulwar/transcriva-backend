@@ -12,7 +12,8 @@ const opts = {
 passport.use(new JWTStrategy(opts,
     async function (jwt_payload,done) {
         try{
-        const user=await Users.findById(jwt_payload.user.id);
+        console.log(jwt_payload);
+        const user=await Users.findById(jwt_payload._id);
         if(user)
         {
             console.log("sign-in successfu")
