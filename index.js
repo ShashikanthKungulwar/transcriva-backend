@@ -6,12 +6,21 @@ const bodyParser = require('body-parser')
 const cors=require('cors');
 const passport = require('passport');
 const JWTStrategy=require('./config/passport-jwt');
+var cookieParser = require('cookie-parser')
+
+
+
+//cookie parser
+app.use(cookieParser())
+
+
 //body parser
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 //cross orign 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'http://localhost:3000',
+credentials: true, }));
 
 //passport init
 app.use(passport.initialize());

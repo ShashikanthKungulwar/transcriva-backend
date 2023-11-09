@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 module.exports.createUser = async (req, res) => {
     try {
-        
+
         const user = await Users.findOne({ email: req.body.email });
         if (!user) {
             const user = await Users.create({
@@ -34,16 +34,30 @@ module.exports.createSession = async (req, res) => {
         let user = await Users.findOne({ email: req.body.email }).exec();
         if (user && user.password == req.body.password) {
 
+
+            const refreshToken = jwt.sign(user.toJSON(),'refresh-token-transcriva', { expiresIn: '1d' });
+
+            // Assigning refresh token in http-only cookie  
+            res.cookie('jwt', refreshToken, {
+                path: '/',
+                httpOnly: true,
+                sameSite: 'None', secure: true,
+                maxAge: 24 * 60 * 60 * 1000
+            });
+
             return res.status(200).json({
                 message: "succcessfully created token",
                 data: {
-                    token: jwt.sign(user.toJSON(), 'transcriva', { expiresIn: '1000000' }),
-                    user:{
-                        email:user.email,
-                        name:user.name
+                    token: jwt.sign(user.toJSON(), 'transcriva', { expiresIn: '1d' }),
+
+                    user: {
+                        email: user.email,
+                        name: user.name
                     }
                 }
             });
+
+
         }
         else {
             return res.status(422).json({
@@ -72,17 +86,17 @@ module.exports.updateUser = async (req, res) => {
                 name: req.body.name,
                 password: req.body.newPassword
             })
-
+            console.log(req.cookies)
             return res.status(200).json({
                 message: "successfully changed deatails",
                 data: {
-                    token: jwt.sign(newDetails.toJSON(), 'transcriva', { expiresIn: '1000000' }),
+                    token: jwt.sign(newDetails.toJSON(), 'transcriva', { expiresIn: '10m' }),
                     user: {
                         email: newDetails.email,
                         name: newDetails.name
                     }
                 }
-            })
+            });
         }
         else {
             return res.status(422).json({
