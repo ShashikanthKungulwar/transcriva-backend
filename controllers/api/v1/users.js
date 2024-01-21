@@ -25,7 +25,7 @@ module.exports.createUser = async (req, res) => {
         return res.status(500).json({
             message: "Internal Server Error"
         })
-    }
+    }   
 }
 
 
@@ -49,7 +49,6 @@ module.exports.createSession = async (req, res) => {
                 message: "succcessfully created token",
                 data: {
                     token: jwt.sign(user.toJSON(), 'transcriva', { expiresIn: '1d' }),
-
                     user: {
                         email: user.email,
                         name: user.name
@@ -81,12 +80,17 @@ module.exports.updateUser = async (req, res) => {
         const user = await Users.findOne({ email: req.body.email });
         if (user && user.password == req.body.password) {
 
-            let newDetails = await Users.findByIdAndUpdate(user._id, {
-                email: req.body.email,
-                name: req.body.name,
-                password: req.body.newPassword
-            })
-            console.log(req.cookies)
+            // let newDetails = await Users.findByIdAndUpdate(user._id, {
+            //     email: req.body.email,
+            //     name: req.body.name,
+            //     password: req.body.newPassword
+            // })    here the api is returning previous details so to avoid this
+            //       i used traditional method insted
+            let newDetails = await Users.findById(user._id);
+            newDetails.name=req.body.name;
+            newDetails.password=req.body.newPassword;
+            await newDetails.save();
+            // console.log(newDetails)
             return res.status(200).json({
                 message: "successfully changed deatails",
                 data: {
